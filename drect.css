@@ -24,6 +24,15 @@ body, html{
     vertical-align: middle;
 }
 
+#server {
+    opacity: 0;
+    transition-duration: .2s;
+}
+
+#server.visible {
+    opacity: 1;
+}
+
 #progress {
     position: fixed;
     bottom: 0;
