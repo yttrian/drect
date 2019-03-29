@@ -47,7 +47,7 @@ DRect.prototype.populate = function (data) {
     if (data.instant_invite) {
         this.progressEl.classList.add("full");
         setTimeout(function () {
-            //location.href = data.instant_invite;
+            location.href = data.instant_invite;
         }, 3e3);
     }
 };
