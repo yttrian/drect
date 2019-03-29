@@ -1,0 +1,34 @@
+html {
+    background-color: #1c1c1c;
+    color: white;
+    font-family: sans-serif;
+}
+
+body, html{
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#progress {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: .3rem;
+    width: 0;
+    background-color: aqua;
+    box-shadow: cyan 0 0 20px 0;
+
+    transition-duration: 3s;
+}
+
+#progress.full {
+    width: 100%;
+}
