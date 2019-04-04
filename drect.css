@@ -48,3 +48,14 @@ body, html{
 #progress.full {
     width: 100%;
 }
+
+a {
+    text-decoration: none;
+    color: white;
+    transition-duration: .3s;
+    border-bottom: 1px solid #1c1c1c;
+}
+
+a:hover {
+    border-bottom: 1px solid white;
+}
