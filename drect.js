@@ -40,9 +40,10 @@ DRect.prototype.getData = function (id, callback) {
             } else {
                 callback.call(myself, {name: responseJSON.message || 'Invalid ID', instant_invite: null})
             }
-        } else {
-            callback.call(myself, {name: "No Internet", instant_invite: null});
         }
+    };
+    xhr.onerror = function () {
+        callback.call(myself, {name: "Connection Error", instant_invite: null});
     };
     xhr.open('GET', url, true);
     xhr.send();
