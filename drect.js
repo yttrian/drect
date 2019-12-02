@@ -1,6 +1,7 @@
 function DRect() {
     this.serverEl = document.getElementById('server');
     this.progressEl = document.getElementById('progress');
+    this.splashEl = document.getElementById('splash');
 
     this.init()
 }
@@ -28,33 +29,72 @@ DRect.prototype.getID = function () {
 DRect.prototype.getData = function (id, callback) {
     var myself = this;
 
-    var url = 'https://discordapp.com/api/guilds/' + id.toString() + '/widget.json';
-
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        if (this.readyState === 4) {
-            var responseJSON = JSON.parse(this.responseText);
-
-            if (this.status === 200) {
-                callback.call(myself, responseJSON);
-            } else {
-                callback.call(myself, {name: responseJSON.message || 'Invalid ID', instant_invite: null})
+    function request(url, success, failure) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (this.readyState === 4) {
+                success(this);
             }
-        }
-    };
-    xhr.onerror = function () {
-        callback.call(myself, {name: "Connection Error", instant_invite: null});
-    };
-    xhr.open('GET', url, true);
-    xhr.send();
+        };
+        xhr.onerror = failure;
+        xhr.open('GET', url, true);
+        xhr.send();
+    }
+
+    var widgetUrl = 'https://discordapp.com/api/guilds/' + id.toString() + '/widget.json',
+        widgetSuccess = function (widgetResult) {
+            var widgetResponseJSON = JSON.parse(widgetResult.responseText);
+
+            if (widgetResult.status === 200) {
+                var inviteId = widgetResponseJSON.instant_invite.split('/').pop(),
+                    inviteDataUrl = 'https://discordapp.com/api/invites/' + inviteId,
+                    inviteDataSuccess = function (inviteDataResult) {
+                        var inviteDataResponseJSON = JSON.parse(inviteDataResult.responseText),
+                            guildId = inviteDataResponseJSON.guild.id,
+                            splashId = inviteDataResponseJSON.guild.splash;
+                        widgetResponseJSON.splash = 'https://cdn.discordapp.com/splashes/' +
+                            guildId + '/' + splashId + '.jpg?size=1536';
+
+                        callback.call(myself, widgetResponseJSON);
+                    };
+
+                callback.call(myself, {name: widgetResponseJSON.name});
+                request(inviteDataUrl, inviteDataSuccess);
+            } else {
+                callback.call(myself, {name: widgetResponseJSON.message || 'Invalid ID'})
+            }
+        },
+        widgetFailure = function () {
+            callback.call(myself, {name: "Connection Error"});
+        };
+
+    request(widgetUrl, widgetSuccess, widgetFailure)
 };
 
+/**
+ * Populates the display and starts a redirect if possible
+ * @param data invite data (name, invite, splash?)
+ */
 DRect.prototype.populate = function (data) {
+    var myself = this;
+
     this.serverEl.innerText = data.name;
     this.serverEl.classList.add('visible');
 
     if (data.instant_invite) {
+        if (data.splash) {
+            // Make sure splash is loaded before showing it
+            var img = new Image();
+            img.onload = function () {
+                myself.splashEl.classList.add('show');
+            };
+            img.src = data.splash;
+            this.splashEl.style.backgroundImage = 'url(' + data.splash + ')';
+            if (img.complete) img.onload(undefined);
+        }
+
         this.progressEl.classList.add('full');
+
         setTimeout(function () {
             location.href = data.instant_invite;
         }, 3e3);
