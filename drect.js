@@ -56,10 +56,13 @@ DRect.prototype.getData = function (id, callback) {
                             guildId + '/' + splashId + '.jpg?size=1536';
 
                         callback.call(myself, widgetResponseJSON);
+                    },
+                    inviteDataFailure = function () {
+                        callback.call(myself, widgetResponseJSON);
                     };
 
                 callback.call(myself, {name: widgetResponseJSON.name});
-                request(inviteDataUrl, inviteDataSuccess);
+                request(inviteDataUrl, inviteDataSuccess, inviteDataFailure);
             } else {
                 callback.call(myself, {name: widgetResponseJSON.message || 'Invalid ID'})
             }
