@@ -46,6 +46,11 @@ DRect.prototype.getData = function (id, callback) {
             var widgetResponseJSON = JSON.parse(widgetResult.responseText);
 
             if (widgetResult.status === 200) {
+                if (!widgetResponseJSON.instant_invite) {
+                    callback.call(myself, {name: widgetResponseJSON.message || 'No invite channel set'});
+                    return;
+                }
+
                 var inviteId = widgetResponseJSON.instant_invite.split('/').pop(),
                     inviteDataUrl = 'https://discordapp.com/api/invites/' + inviteId,
                     inviteDataSuccess = function (inviteDataResult) {
